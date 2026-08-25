@@ -1,4 +1,4 @@
-package main
+package user
 
 import (
 	"encoding/json"
@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"casinogame/ui"
 )
 
 type User struct {
@@ -15,8 +17,8 @@ type User struct {
 }
 
 func NewUser() (User, error) {
-	name := readLine("Введите имя: ")
-	age, err := readInt("Введите возраст: ")
+	name := ui.ReadLine("Введите имя: ")
+	age, err := ui.ReadInt("Введите возраст: ")
 	if err != nil {
 		return User{}, errors.New("некорректный возраст")
 	}
@@ -84,7 +86,7 @@ func ReadUsersJson() ([]User, error) {
 
 func ChoiceUser(users []User) User {
 	for {
-		clearConsole()
+		ui.ClearConsole()
 		fmt.Println("Выберите пользователя:")
 
 		for _, user := range users {
@@ -92,7 +94,7 @@ func ChoiceUser(users []User) User {
 		}
 
 		fmt.Println("Новый пользователь (нп)")
-		ans := readLine("-> ")
+		ans := ui.ReadLine("-> ")
 
 		for _, user := range users {
 			if ans == user.Name {
@@ -104,25 +106,25 @@ func ChoiceUser(users []User) User {
 			newUser, err := NewUser()
 			if err != nil {
 				fmt.Println(err.Error())
-				readLine("Enter чтобы продолжить...")
+				ui.ReadLine("Enter чтобы продолжить...")
 				continue
 			}
 			if err := AddNewUserJson(newUser); err != nil {
 				fmt.Println(err.Error())
-				readLine("Enter чтобы продолжить...")
+				ui.ReadLine("Enter чтобы продолжить...")
 				continue
 			}
 			updatedUsers, err := ReadUsersJson()
 			if err != nil {
 				fmt.Println(err.Error())
-				readLine("Enter чтобы продолжить...")
+				ui.ReadLine("Enter чтобы продолжить...")
 				continue
 			}
 			users = updatedUsers
 			continue
 		}
 
-		readLine("Пользователь не найден..(Enter)")
+		ui.ReadLine("Пользователь не найден..(Enter)")
 	}
 }
 

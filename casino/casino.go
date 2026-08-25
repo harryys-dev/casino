@@ -1,4 +1,4 @@
-package main
+package casino
 
 import (
 	"errors"
@@ -6,6 +6,9 @@ import (
 	"math"
 	"math/rand/v2"
 	"strings"
+
+	"casinogame/ui"
+	u "casinogame/user"
 )
 
 type Casino struct {
@@ -18,7 +21,7 @@ func InitCasino() Casino {
 	}
 }
 
-func (c *Casino) Dep(user *User, bid int, factor float64) error {
+func (c *Casino) Dep(user *u.User, bid int, factor float64) error {
 	if bid <= 0 {
 		return errors.New("ставка должна быть положительной")
 	}
@@ -54,14 +57,14 @@ func (c *Casino) Dep(user *User, bid int, factor float64) error {
 		return nil
 	}
 
-	ans := readLine("Додеп? (Да/Нет): ")
+	ans := ui.ReadLine("Додеп? (Да/Нет): ")
 	if strings.ToLower(ans) == "да" {
 		return c.Dep(user, bid, factor)
 	}
 	return nil
 }
 
-func (c *Casino) BlackAndRed(user *User, bid int, factor float64) error {
+func (c *Casino) BlackAndRed(user *u.User, bid int, factor float64) error {
 	var ans string
 	rbnumber := rand.IntN(2)
 	bones := []string{"красное", "чёрное"}
@@ -83,7 +86,7 @@ func (c *Casino) BlackAndRed(user *User, bid int, factor float64) error {
 		return nil
 	}
 
-	ans = readLine("Выберите: красное или чёрное ->  ")
+	ans = ui.ReadLine("Выберите: красное или чёрное ->  ")
 
 	if strings.ToLower(ans) == bones[rbnumber] {
 		if err := c.userWin(user, bid, factor); err != nil {
@@ -100,12 +103,12 @@ func (c *Casino) BlackAndRed(user *User, bid int, factor float64) error {
 	return nil
 }
 
-func (c *Casino) userWin(user *User, bid int, factor float64) error {
+func (c *Casino) userWin(user *u.User, bid int, factor float64) error {
 	amount := int(math.Round(float64(bid) * factor))
 	c.balance -= amount
 	user.Balance += amount
 
-	usersJson, err := ReadUsersJson()
+	usersJson, err := u.ReadUsersJson()
 	if err != nil {
 		return err
 	}
@@ -116,12 +119,12 @@ func (c *Casino) userWin(user *User, bid int, factor float64) error {
 		}
 	}
 
-	musersJson, err := UserMarshal(usersJson)
+	musersJson, err := u.UserMarshal(usersJson)
 	if err != nil {
 		return err
 	}
 
-	if err = WriteToJson(musersJson); err != nil {
+	if err = u.WriteToJson(musersJson); err != nil {
 		return err
 	}
 
@@ -129,11 +132,11 @@ func (c *Casino) userWin(user *User, bid int, factor float64) error {
 	return nil
 }
 
-func (c *Casino) userLoose(user *User, bid int) error {
+func (c *Casino) userLoose(user *u.User, bid int) error {
 	c.balance += bid
 	user.Balance -= bid
 
-	usersJson, err := ReadUsersJson()
+	usersJson, err := u.ReadUsersJson()
 	if err != nil {
 		return err
 	}
@@ -144,12 +147,12 @@ func (c *Casino) userLoose(user *User, bid int) error {
 		}
 	}
 
-	musersJson, err := UserMarshal(usersJson)
+	musersJson, err := u.UserMarshal(usersJson)
 	if err != nil {
 		return err
 	}
 
-	if err = WriteToJson(musersJson); err != nil {
+	if err = u.WriteToJson(musersJson); err != nil {
 		return err
 	}
 

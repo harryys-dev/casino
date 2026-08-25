@@ -1,89 +1,50 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
-	"runtime"
-	"strconv"
 	"strings"
+
+	c "casinogame/casino"
+	g "casinogame/games"
+	"casinogame/ui"
+	u "casinogame/user"
 )
-
-const (
-	esc = "\033["
-	dol = "$ "
-)
-
-var (
-	scanner     = bufio.NewScanner(os.Stdin)
-	slotMachine = strings.Split(`⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⣀⣤⣤⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣤⣤⣀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⢙⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⡋⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⢸⣿⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⣿⡇⠀⠀⣤⣄⠀⠀
-⠀⠀⠀⠀⠀⠀⢸⣿⠀⢸⣿⣿⡇⢸⣿⣿⡇⢸⣿⣿⡇⠀⣿⢸⠀⠀⣿⠛⠀⠀
-⠀⠀⠀⠀⠀⠀⢸⣿⠀⢸⣿⣿⡇⢸⣿⣿⡇⢸⣿⣿⡇⠀⣿⢸⠀⠀⣿⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⢸⣿⠀⢸⣿⣿⡇⢸⣿⣿⡇⢸⣿⣿⡇⠀⣿⢸⠀⣾⡇⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⢸⣿⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣿⡆⠀⣿⡿⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠁⠀⠙⠃⠀⠀⠀
-⠀⠀⠀⠀⢀⣴⣿⠟⠛⠛⢻⡿⠛⠛⠛⢻⣿⣿⡟⠋⠉⠉⠛⢿⣦⡀⠀⠀⠀⠀
-⠀⠀⠀⠀⣿⣿⣤⣤⣤⣤⣾⣧⣤⣤⣤⣿⣿⣿⣷⣦⣤⣤⣶⣿⣿⣿⠀⠀⠀⠀
-⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀
-⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀
-⠀⠀⠀⠀⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀`, "\n")
-)
-
-func readLine(prompt string) string {
-	fmt.Print(prompt)
-	scanner.Scan()
-	return strings.TrimSpace(scanner.Text())
-}
-
-func readInt(prompt string) (int, error) {
-	s := readLine(prompt)
-	return strconv.Atoi(s)
-}
-
-func readFloat(prompt string) (float64, error) {
-	s := readLine(prompt)
-	return strconv.ParseFloat(s, 64)
-}
 
 func main() {
-	users, err := ReadUsersJson()
+	users, err := u.ReadUsersJson()
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			fmt.Println("Ошибка чтения файла:", err.Error())
 			return
 		}
 
-		newUser, err := NewUser()
+		newUser, err := u.NewUser()
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 
-		data, err := UserMarshal([]User{newUser})
+		data, err := u.UserMarshal([]u.User{newUser})
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
-		if err := WriteToJson(data); err != nil {
+		if err := u.WriteToJson(data); err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 
-		users = []User{newUser}
+		users = []u.User{newUser}
 	}
 
-	casino := InitCasino()
-	user := ChoiceUser(users)
+	casino := c.InitCasino()
+	user := u.ChoiceUser(users)
 
 	for {
 		drawWelcome(user)
-		ans := readLine("-> ")
+		ans := ui.ReadLine("-> ")
 
 		if strings.ToLower(ans) == "выход" {
 			fmt.Println("До встречи.")
@@ -91,83 +52,46 @@ func main() {
 		}
 
 		if strings.ToLower(ans) == "сп" {
-			user = ChoiceUser(users)
+			user = u.ChoiceUser(users)
 			continue
 		}
 
-		game := findGame(ans)
+		game := g.FindGame(ans)
 		if game == nil {
-			readLine("Игра не найдена, попробуйте еще раз. (Enter)")
+			ui.ReadLine("Игра не найдена, попробуйте еще раз. (Enter)")
 			continue
 		}
 
-		bid, err := readInt("Ваша ставка -> ")
+		bid, err := ui.ReadInt("Ваша ставка -> ")
 		if err != nil {
 			fmt.Println("Некорректная ставка")
-			readLine("Нажми Enter чтобы продолжить...")
+			ui.ReadLine("Нажми Enter чтобы продолжить...")
 			continue
 		}
-		factor, err := readFloat("Множитель -> ")
+		factor, err := ui.ReadFloat("Множитель -> ")
 		if err != nil {
 			fmt.Println("Некорректный множитель")
-			readLine("Нажми Enter чтобы продолжить...")
+			ui.ReadLine("Нажми Enter чтобы продолжить...")
 			continue
 		}
 
 		if err := game.Play(&casino, &user, bid, factor); err != nil {
 			fmt.Println(err.Error())
 		}
-		readLine("Нажмите, что бы продолжить...")
+		ui.ReadLine("Нажмите, что бы продолжить...")
 	}
 }
 
-func clearConsole() {
-	var cmd *exec.Cmd
+func drawWelcome(user u.User) {
+	ui.ClearConsole()
 
-	switch runtime.GOOS {
-	case "linux", "darwin":
-		cmd = exec.Command("clear")
-	case "windows":
-		cmd = exec.Command("cmd", "/c", "cls")
-	default:
-		return
-	}
-
-	cmd.Stdout = os.Stdout
-	cmd.Run()
-}
-
-func moveCursor(row, col int) {
-	fmt.Printf("%s%d;%dH", esc, row, col)
-}
-
-func saveCursor() {
-	fmt.Print(esc + "s")
-}
-
-func restoreCursor() {
-	fmt.Print(esc + "u")
-}
-
-func printArtAt(art []string, row, col int) {
-	saveCursor()
-	for i, line := range art {
-		moveCursor(row+i, col)
-		fmt.Print(line)
-	}
-	restoreCursor()
-}
-
-func drawWelcome(user User) {
-	clearConsole()
-
-	printArtAt(slotMachine, 2, 40)
+	ui.PrintArtAt(ui.SlotMachine, 2, 40)
 
 	fmt.Printf("\n\n\n\nДобро пожаловать в казино, %s!\n", user.Name)
 	fmt.Printf("Баланс: %d\n", user.Balance)
 
 	fmt.Println("Выбери: ")
-	for _, v := range games {
+	for _, v := range g.Games {
 		fmt.Printf("%s(%s) | ", v.Name, v.Command)
 	}
 	fmt.Println("Выход")
