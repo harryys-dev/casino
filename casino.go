@@ -28,16 +28,18 @@ func (c *Casino) Dep(user *User, bid int, factor float64) error {
 	if user.Balance < 0 {
 		return errors.New("ваш баланс отрицательный")
 	}
-	if user.Balance < int(math.Round(float64(bid)*factor)) {
-		return errors.New("баланс меньше чем возможный проигрыш")
+	if user.Balance < bid {
+		return errors.New("баланс меньше чем ставка")
 	}
 
 	win := rand.Int64N(2) == 1
 
 	if win {
-		c.userWin(user, bid, factor)
+		if err := c.userWin(user, bid, factor); err != nil {
+			return err
+		}
 	} else {
-		if err := c.userLoose(user, bid, factor); err != nil {
+		if err := c.userLoose(user, bid); err != nil {
 			return err
 		}
 	}
@@ -84,26 +86,28 @@ func (c *Casino) BlackAndRed(user *User, bid int, factor float64) error {
 	ans = readLine("Выберите: красное или чёрное ->  ")
 
 	if strings.ToLower(ans) == bones[rbnumber] {
-		c.userWin(user, bid, factor)
+		if err := c.userWin(user, bid, factor); err != nil {
+			return err
+		}
 	} else if strings.ToLower(ans) != "красное" && strings.ToLower(ans) != "чёрное" {
 		return errors.New("Нужно ввести 'красное' или 'чёрное'")
 	} else {
 		fmt.Println("Выпало:", bones[rbnumber])
-		if err := c.userLoose(user, bid, factor); err != nil {
+		if err := c.userLoose(user, bid); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *Casino) userWin(user *User, bid int, factor float64) {
+func (c *Casino) userWin(user *User, bid int, factor float64) error {
 	amount := int(math.Round(float64(bid) * factor))
 	c.balance -= amount
 	user.Balance += amount
 
 	usersJson, err := ReadUsersJson()
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 
 	for i := range usersJson {
@@ -114,18 +118,20 @@ func (c *Casino) userWin(user *User, bid int, factor float64) {
 
 	musersJson, err := UserMarshal(usersJson)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 
 	if err = WriteToJson(musersJson); err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 
 	fmt.Printf("Вы выйграли! Выйгрышь: %d. Баланс: %d\n", amount, user.Balance)
+	return nil
 }
 
-func (c *Casino) userLoose(user *User, bid int, factor float64) error {
-	amount := int(math.Round(float64(bid) * factor))
+func (c *Casino) userLoose(user *User, bid int) error {
+	c.balance += bid
+	user.Balance -= bid
 
 	usersJson, err := ReadUsersJson()
 	if err != nil {
@@ -145,10 +151,8 @@ func (c *Casino) userLoose(user *User, bid int, factor float64) error {
 
 	if err = WriteToJson(musersJson); err != nil {
 		return err
-	} else {
-		c.balance += amount
-		user.Balance -= amount
-		fmt.Printf("Вы проиграли! Проигрышь: %d. Баланс: %d\n", amount, user.Balance)
-		return nil
 	}
+
+	fmt.Printf("Вы проиграли! Проигрышь: %d. Баланс: %d\n", bid, user.Balance)
+	return nil
 }
