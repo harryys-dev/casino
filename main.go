@@ -161,10 +161,8 @@ func printArtAt(art []string, row, col int) {
 func drawWelcome(user User) {
 	clearConsole()
 
-	// печатаем арт справа, начиная с 1-й строки, с 50-й колонки
 	printArtAt(slotMachine, 2, 40)
 
-	// обычный текст печатается как ни в чём не бывало, слева, построчно
 	fmt.Printf("\n\n\n\nДобро пожаловать в казино, %s!\n", user.Name)
 	fmt.Printf("Баланс: %d\n", user.Balance)
 
