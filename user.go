@@ -18,12 +18,22 @@ func NewUser() (User, error) {
 	name := readLine("Введите имя: ")
 	age, err := readInt("Введите возраст: ")
 	if err != nil {
-		fmt.Println("Некорректный возраст")
 		return User{}, errors.New("некорректный возраст")
 	}
 
 	if age < 18 {
 		return User{}, errors.New("вам меньше 18, вход запрещен")
+	}
+
+	users, err := ReadUsersJson()
+	if err != nil {
+		return User{}, err
+	}
+
+	for _, u := range users {
+		if u.Name == name {
+			return User{}, errors.New("пользователь с таким именем уже существует")
+		}
 	}
 
 	return User{
@@ -85,7 +95,7 @@ func ChoiceUser(users []User) User {
 		ans := readLine("-> ")
 
 		for _, user := range users {
-			if strings.EqualFold(ans, user.Name) {
+			if ans == user.Name {
 				return user
 			}
 		}
