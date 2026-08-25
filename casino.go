@@ -37,7 +37,9 @@ func (c *Casino) Dep(user *User, bid int, factor float64) error {
 	if win {
 		c.userWin(user, bid, factor)
 	} else {
-		c.userLoose(user, bid, factor)
+		if err := c.userLoose(user, bid, factor); err != nil {
+			return err
+		}
 	}
 
 	if c.balance < 0 {
@@ -87,7 +89,9 @@ func (c *Casino) BlackAndRed(user *User, bid int, factor float64) error {
 		return errors.New("Нужно ввести 'красное' или 'чёрное'")
 	} else {
 		fmt.Println("Выпало:", bones[rbnumber])
-		c.userLoose(user, bid, factor)
+		if err := c.userLoose(user, bid, factor); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -120,14 +124,12 @@ func (c *Casino) userWin(user *User, bid int, factor float64) {
 	fmt.Printf("Вы выйграли! Выйгрышь: %d. Баланс: %d\n", amount, user.Balance)
 }
 
-func (c *Casino) userLoose(user *User, bid int, factor float64) {
+func (c *Casino) userLoose(user *User, bid int, factor float64) error {
 	amount := int(math.Round(float64(bid) * factor))
-	c.balance += amount
-	user.Balance -= amount
 
 	usersJson, err := ReadUsersJson()
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 
 	for i := range usersJson {
@@ -138,12 +140,15 @@ func (c *Casino) userLoose(user *User, bid int, factor float64) {
 
 	musersJson, err := UserMarshal(usersJson)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 
 	if err = WriteToJson(musersJson); err != nil {
-		fmt.Println(err.Error())
+		return err
+	} else {
+		c.balance += amount
+		user.Balance -= amount
+		fmt.Printf("Вы проиграли! Проигрышь: %d. Баланс: %d\n", amount, user.Balance)
+		return nil
 	}
-
-	fmt.Printf("Вы проиграли! Проигрышь: %d. Баланс: %d\n", amount, user.Balance)
 }
