@@ -20,7 +20,7 @@ func main() {
 			return
 		}
 
-		newUser, err := u.NewUser()
+		newUser, err := u.CreateUser()
 		if err != nil {
 			fmt.Println(err.Error())
 			return

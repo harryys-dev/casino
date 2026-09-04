@@ -16,7 +16,7 @@ type User struct {
 	Balance int    `json:"balance"`
 }
 
-func NewUser() (User, error) {
+func CreateUser() (User, error) {
 	name := ui.ReadLine("Введите имя: ")
 	age, err := ui.ReadInt("Введите возраст: ")
 	if err != nil {
@@ -84,6 +84,24 @@ func ReadUsersJson() ([]User, error) {
 	return user, nil
 }
 
+func AddNewUserJson(user User) error {
+	users, err := ReadUsersJson()
+	if err != nil {
+		return err
+	}
+
+	users = append(users, user)
+	musers, err := UserMarshal(users)
+	if err != nil {
+		return err
+	}
+	if err = WriteToJson(musers); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ChoiceUser(users []User) User {
 	for {
 		ui.ClearConsole()
@@ -103,7 +121,7 @@ func ChoiceUser(users []User) User {
 		}
 
 		if strings.ToLower(ans) == "нп" {
-			newUser, err := NewUser()
+			newUser, err := CreateUser()
 			if err != nil {
 				fmt.Println(err.Error())
 				ui.ReadLine("Enter чтобы продолжить...")
@@ -126,22 +144,4 @@ func ChoiceUser(users []User) User {
 
 		ui.ReadLine("Пользователь не найден..(Enter)")
 	}
-}
-
-func AddNewUserJson(user User) error {
-	users, err := ReadUsersJson()
-	if err != nil {
-		return err
-	}
-
-	users = append(users, user)
-	musers, err := UserMarshal(users)
-	if err != nil {
-		return err
-	}
-	if err = WriteToJson(musers); err != nil {
-		return err
-	}
-
-	return nil
 }
