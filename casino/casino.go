@@ -65,10 +65,6 @@ func (c *Casino) Dep(user *u.User, bid int, factor float64) error {
 }
 
 func (c *Casino) BlackAndRed(user *u.User, bid int, factor float64) error {
-	var ans string
-	rbnumber := rand.IntN(2)
-	bones := []string{"красное", "чёрное"}
-
 	if bid <= 0 {
 		return errors.New("ставка должна быть положительной")
 	}
@@ -86,6 +82,9 @@ func (c *Casino) BlackAndRed(user *u.User, bid int, factor float64) error {
 		return nil
 	}
 
+	var ans string
+	rbnumber := rand.IntN(2)
+	bones := []string{"красное", "чёрное"}
 	ans = ui.ReadLine("Выберите: красное или чёрное ->  ")
 
 	if strings.ToLower(ans) == bones[rbnumber] {

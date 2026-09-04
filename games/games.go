@@ -27,9 +27,9 @@ var Games = []Game{
 }
 
 func FindGame(command string) *Game {
-	for _, g := range Games {
+	for i, g := range Games {
 		if strings.ToLower(command) == g.Command {
-			return &g
+			return &Games[i]
 		}
 	}
 	return nil
