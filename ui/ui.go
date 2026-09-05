@@ -1,3 +1,4 @@
+// Package ui include functions associated with ui.
 package ui
 
 import (

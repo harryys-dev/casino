@@ -1,3 +1,4 @@
+// Package games include User struct and methods associated with it.
 package games
 
 import (

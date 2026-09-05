@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	users, err := u.ReadUsersJson()
+	users, err := u.ReadUsersJSON()
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			fmt.Println("Ошибка чтения файла:", err.Error())
@@ -31,7 +31,7 @@ func main() {
 			fmt.Println(err.Error())
 			return
 		}
-		if err := u.WriteToJson(data); err != nil {
+		if err := u.WriteToJSON(data); err != nil {
 			fmt.Println(err.Error())
 			return
 		}

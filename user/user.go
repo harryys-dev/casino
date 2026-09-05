@@ -1,3 +1,4 @@
+// Package user include User struct and methods associated with it.
 package user
 
 import (
@@ -27,7 +28,7 @@ func CreateUser() (User, error) {
 		return User{}, errors.New("вам меньше 18, вход запрещен")
 	}
 
-	users, err := ReadUsersJson()
+	users, err := ReadUsersJSON()
 	if err != nil {
 		return User{}, err
 	}
@@ -61,14 +62,14 @@ func UserUnmarshal(data []byte) (User, error) {
 	return user, nil
 }
 
-func WriteToJson(data []byte) error {
+func WriteToJSON(data []byte) error {
 	if err := os.WriteFile("users.json", data, 0o644); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ReadUsersJson() ([]User, error) {
+func ReadUsersJSON() ([]User, error) {
 	file, err := os.Open("users.json")
 	if err != nil {
 		return nil, err
@@ -84,8 +85,8 @@ func ReadUsersJson() ([]User, error) {
 	return user, nil
 }
 
-func AddNewUserJson(user User) error {
-	users, err := ReadUsersJson()
+func AddNewUserJSON(user User) error {
+	users, err := ReadUsersJSON()
 	if err != nil {
 		return err
 	}
@@ -95,7 +96,7 @@ func AddNewUserJson(user User) error {
 	if err != nil {
 		return err
 	}
-	if err = WriteToJson(musers); err != nil {
+	if err = WriteToJSON(musers); err != nil {
 		return err
 	}
 
@@ -127,12 +128,12 @@ func ChoiceUser(users []User) User {
 				ui.ReadLine("Enter чтобы продолжить...")
 				continue
 			}
-			if err := AddNewUserJson(newUser); err != nil {
+			if err := AddNewUserJSON(newUser); err != nil {
 				fmt.Println(err.Error())
 				ui.ReadLine("Enter чтобы продолжить...")
 				continue
 			}
-			updatedUsers, err := ReadUsersJson()
+			updatedUsers, err := ReadUsersJSON()
 			if err != nil {
 				fmt.Println(err.Error())
 				ui.ReadLine("Enter чтобы продолжить...")

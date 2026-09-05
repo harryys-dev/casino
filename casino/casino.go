@@ -1,3 +1,4 @@
+// Package casino include User struct and methods associated with it.
 package casino
 
 import (
@@ -92,7 +93,7 @@ func (c *Casino) BlackAndRed(user *u.User, bid int, factor float64) error {
 			return err
 		}
 	} else if strings.ToLower(ans) != "красное" && strings.ToLower(ans) != "чёрное" {
-		return errors.New("Нужно ввести 'красное' или 'чёрное'")
+		return errors.New("нужно ввести 'красное' или 'чёрное'")
 	} else {
 		fmt.Println("Выпало:", bones[rbnumber])
 		if err := c.userLoose(user, bid); err != nil {
@@ -107,23 +108,23 @@ func (c *Casino) userWin(user *u.User, bid int, factor float64) error {
 	c.balance -= amount
 	user.Balance += amount
 
-	usersJson, err := u.ReadUsersJson()
+	usersJSON, err := u.ReadUsersJSON()
 	if err != nil {
 		return err
 	}
 
-	for i := range usersJson {
-		if usersJson[i].Name == user.Name {
-			usersJson[i].Balance = user.Balance
+	for i := range usersJSON {
+		if usersJSON[i].Name == user.Name {
+			usersJSON[i].Balance = user.Balance
 		}
 	}
 
-	musersJson, err := u.UserMarshal(usersJson)
+	musersJSON, err := u.UserMarshal(usersJSON)
 	if err != nil {
 		return err
 	}
 
-	if err = u.WriteToJson(musersJson); err != nil {
+	if err = u.WriteToJSON(musersJSON); err != nil {
 		return err
 	}
 
@@ -135,23 +136,23 @@ func (c *Casino) userLoose(user *u.User, bid int) error {
 	c.balance += bid
 	user.Balance -= bid
 
-	usersJson, err := u.ReadUsersJson()
+	usersJSON, err := u.ReadUsersJSON()
 	if err != nil {
 		return err
 	}
 
-	for i := range usersJson {
-		if usersJson[i].Name == user.Name {
-			usersJson[i].Balance = user.Balance
+	for i := range usersJSON {
+		if usersJSON[i].Name == user.Name {
+			usersJSON[i].Balance = user.Balance
 		}
 	}
 
-	musersJson, err := u.UserMarshal(usersJson)
+	musersJSON, err := u.UserMarshal(usersJSON)
 	if err != nil {
 		return err
 	}
 
-	if err = u.WriteToJson(musersJson); err != nil {
+	if err = u.WriteToJSON(musersJSON); err != nil {
 		return err
 	}
 
