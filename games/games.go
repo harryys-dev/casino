@@ -11,7 +11,7 @@ import (
 type Game struct {
 	Name    string
 	Command string
-	Play    func(c *casino.Casino, user *user.User, bid int, factor float64) error
+	Play    func(c *casino.Casino, user *user.User, bid int, factor float64, gameName string) error
 }
 
 var Games = []Game{

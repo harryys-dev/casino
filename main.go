@@ -8,11 +8,14 @@ import (
 
 	c "casinogame/casino"
 	g "casinogame/games"
+	"casinogame/logger"
 	"casinogame/ui"
 	u "casinogame/user"
 )
 
 func main() {
+	defer logger.Close()
+
 	users, err := u.ReadUsersJSON()
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -75,7 +78,7 @@ func main() {
 			continue
 		}
 
-		if err := game.Play(&casino, &user, bid, factor); err != nil {
+		if err := game.Play(&casino, &user, bid, factor, game.Name); err != nil {
 			fmt.Println(err.Error())
 		}
 		ui.ReadLine("Нажмите, что бы продолжить...")

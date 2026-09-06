@@ -8,6 +8,7 @@ import (
 	"math/rand/v2"
 	"strings"
 
+	"casinogame/logger"
 	"casinogame/ui"
 	u "casinogame/user"
 )
@@ -22,7 +23,7 @@ func InitCasino() Casino {
 	}
 }
 
-func (c *Casino) Dep(user *u.User, bid int, factor float64) error {
+func (c *Casino) Dep(user *u.User, bid int, factor float64, gameName string) error {
 	if bid <= 0 {
 		return errors.New("ставка должна быть положительной")
 	}
@@ -39,11 +40,11 @@ func (c *Casino) Dep(user *u.User, bid int, factor float64) error {
 	win := rand.Int64N(2) == 1
 
 	if win {
-		if err := c.userWin(user, bid, factor); err != nil {
+		if err := c.userWin(user, bid, factor, gameName); err != nil {
 			return err
 		}
 	} else {
-		if err := c.userLoose(user, bid); err != nil {
+		if err := c.userLoose(user, bid, gameName); err != nil {
 			return err
 		}
 	}
@@ -60,12 +61,12 @@ func (c *Casino) Dep(user *u.User, bid int, factor float64) error {
 
 	ans := ui.ReadLine("Додеп? (Да/Нет): ")
 	if strings.ToLower(ans) == "да" {
-		return c.Dep(user, bid, factor)
+		return c.Dep(user, bid, factor, gameName)
 	}
 	return nil
 }
 
-func (c *Casino) BlackAndRed(user *u.User, bid int, factor float64) error {
+func (c *Casino) BlackAndRed(user *u.User, bid int, factor float64, gameName string) error {
 	if bid <= 0 {
 		return errors.New("ставка должна быть положительной")
 	}
@@ -89,21 +90,21 @@ func (c *Casino) BlackAndRed(user *u.User, bid int, factor float64) error {
 	ans = ui.ReadLine("Выберите: красное или чёрное ->  ")
 
 	if strings.ToLower(ans) == bones[rbnumber] {
-		if err := c.userWin(user, bid, factor); err != nil {
+		if err := c.userWin(user, bid, factor, gameName); err != nil {
 			return err
 		}
 	} else if strings.ToLower(ans) != "красное" && strings.ToLower(ans) != "чёрное" {
 		return errors.New("нужно ввести 'красное' или 'чёрное'")
 	} else {
 		fmt.Println("Выпало:", bones[rbnumber])
-		if err := c.userLoose(user, bid); err != nil {
+		if err := c.userLoose(user, bid, gameName); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *Casino) userWin(user *u.User, bid int, factor float64) error {
+func (c *Casino) userWin(user *u.User, bid int, factor float64, gameName string) error {
 	amount := int(math.Round(float64(bid) * factor))
 	c.balance -= amount
 	user.Balance += amount
@@ -128,11 +129,13 @@ func (c *Casino) userWin(user *u.User, bid int, factor float64) error {
 		return err
 	}
 
+	logger.Log(user.Name, gameName, bid, amount)
+
 	fmt.Printf("Вы выйграли! Выйгрышь: %d. Баланс: %d\n", amount, user.Balance)
 	return nil
 }
 
-func (c *Casino) userLoose(user *u.User, bid int) error {
+func (c *Casino) userLoose(user *u.User, bid int, gameName string) error {
 	c.balance += bid
 	user.Balance -= bid
 
@@ -156,6 +159,7 @@ func (c *Casino) userLoose(user *u.User, bid int) error {
 		return err
 	}
 
+	logger.Log(user.Name, gameName, bid, bid)
 	fmt.Printf("Вы проиграли! Проигрышь: %d. Баланс: %d\n", bid, user.Balance)
 	return nil
 }
