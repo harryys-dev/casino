@@ -8,9 +8,9 @@ import (
 	"math/rand/v2"
 	"strings"
 
-	"casinogame/logger"
-	"casinogame/ui"
-	u "casinogame/user"
+	"casinogame/internal/logger"
+	"casinogame/internal/ui"
+	u "casinogame/internal/user"
 )
 
 type Casino struct {

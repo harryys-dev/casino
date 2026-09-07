@@ -6,11 +6,11 @@ import (
 	"os"
 	"strings"
 
-	c "casinogame/casino"
-	g "casinogame/games"
-	"casinogame/logger"
-	"casinogame/ui"
-	u "casinogame/user"
+	c "casinogame/internal/casino"
+	g "casinogame/internal/games"
+	"casinogame/internal/logger"
+	"casinogame/internal/ui"
+	u "casinogame/internal/user"
 )
 
 func main() {

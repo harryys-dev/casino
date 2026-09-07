@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"casinogame/ui"
+	"casinogame/internal/ui"
 )
 
 type User struct {

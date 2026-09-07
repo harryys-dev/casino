@@ -4,8 +4,8 @@ package games
 import (
 	"strings"
 
-	"casinogame/casino"
-	"casinogame/user"
+	"casinogame/internal/casino"
+	"casinogame/internal/user"
 )
 
 type Game struct {
